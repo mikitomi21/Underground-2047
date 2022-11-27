@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Bonus
   layers:
   - Default
   - TransparentFX
@@ -40,4 +41,19 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 786523425
+    locked: 0
+  - name: Platforms
+    uniqueID: 1670068013
+    locked: 0
+  - name: Props
+    uniqueID: 2121141559
+    locked: 0
+  - name: Player
+    uniqueID: 3976357145
+    locked: 0
+  - name: Collectables
+    uniqueID: 357272365
     locked: 0
