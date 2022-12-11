@@ -16,8 +16,16 @@ public class FoxController : MonoBehaviour
     private Animator animator;
     private bool isWalking = false;
     int score = 0;
+
+    int lives = 3;
+    Vector2 startPosition;
+
+    int keysFound = 0;
+    const int keysNumber = 3;
+
     private void Awake()
     {
+        startPosition = transform.position;
         rigidbody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
     }
@@ -28,7 +36,6 @@ public class FoxController : MonoBehaviour
         
         isWalking = false;
         float horizontalValue = Input.GetAxis("Horizontal");
-        Debug.Log(horizontalValue);
         if (horizontalValue != 0)
         {
             if (horizontalValue < 0 && isFacingRight == true)
@@ -68,6 +75,14 @@ public class FoxController : MonoBehaviour
         transform.localScale = theScale;
     }
 
+    private void Death()
+    {
+        this.transform.position = startPosition;
+        lives--;
+        Debug.Log("Fall out of map. Reset position.");
+        Debug.Log("Lives: " + lives);
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(other.CompareTag("Bonus"))
@@ -75,6 +90,42 @@ public class FoxController : MonoBehaviour
             score++;
             Debug.Log("Score: " + score);
             other.gameObject.SetActive(false);
+        }
+        if (other.CompareTag("Enemy") && this.transform.position.y > other.gameObject.transform.position.y)
+        {
+            score++;
+            Debug.Log("Killed an enemy");
+            Debug.Log("Score: " + score);
+        }
+        if (other.CompareTag("Enemy") && this.transform.position.y <= other.gameObject.transform.position.y)
+        {
+            lives--;
+            if (lives > 0)
+            {
+                Debug.Log("Lives: " + lives);
+                this.transform.position = startPosition;
+            }
+            else
+            {
+                Debug.Log("End game");
+            }
+            
+        }
+        if (other.CompareTag("Key"))
+        {
+            keysFound++;
+            Debug.Log("Keys found: " + keysFound);
+            other.gameObject.SetActive(false);
+        }
+        if (other.CompareTag("ExtraLive"))
+        {
+            lives++;
+            Debug.Log("Lives: " + lives);
+            other.gameObject.SetActive(false);
+        }
+        if (other.CompareTag("FallLevel"))
+        {
+            Death();
         }
     }
 }
