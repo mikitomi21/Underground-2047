@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class FoxController : MonoBehaviour
 {
     [SerializeField] private float horizontalSpeed = 10f;
@@ -15,7 +16,6 @@ public class FoxController : MonoBehaviour
     private Rigidbody2D rigidbody;
     private Animator animator;
     private bool isWalking = false;
-    int score = 0;
 
     int lives = 3;
     Vector2 startPosition;
@@ -30,30 +30,32 @@ public class FoxController : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-
     void Update()
     {
-        
-        isWalking = false;
-        float horizontalValue = Input.GetAxis("Horizontal");
-        if (horizontalValue != 0)
+        if (GameManager.instance.currentGameState == GameState.GS_GAME)
         {
-            if (horizontalValue < 0 && isFacingRight == true)
-                Flip();
-            if (horizontalValue > 0 && isFacingRight == false)
-                Flip();
-            isWalking = true;
-            float moveSpeed = horizontalValue * horizontalSpeed * Time.deltaTime;
-            transform.Translate(moveSpeed, 0, 0, Space.World);
-        }
+            isWalking = false;
+            float horizontalValue = Input.GetAxis("Horizontal");
+            if (horizontalValue != 0)
+            {
+                if (horizontalValue < 0 && isFacingRight == true)
+                    Flip();
+                if (horizontalValue > 0 && isFacingRight == false)
+                    Flip();
+                isWalking = true;
+                float moveSpeed = horizontalValue * horizontalSpeed * Time.deltaTime;
+                transform.Translate(moveSpeed, 0, 0, Space.World);
+            }
 
-        if(Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
-        {
-            Jump();
+            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+            {
+                Jump();
+            }
+            animator.SetBool("isGrounded", isGrounded());
+            animator.SetBool("Walking", isWalking);
+            Debug.DrawRay(transform.position + new Vector3(przesuniecieX, przesuniecieY, 0), rayLength * Vector2.left, Color.white, 1, false);
         }
-        animator.SetBool("isGrounded", isGrounded());
-        animator.SetBool("Walking", isWalking);
-        Debug.DrawRay(transform.position + new Vector3(przesuniecieX, przesuniecieY, 0), rayLength * Vector2.left, Color.white, 1, false);
+        
     }
 
     bool isGrounded()
@@ -78,28 +80,32 @@ public class FoxController : MonoBehaviour
     private void Death()
     {
         this.transform.position = startPosition;
-        lives--;
+        GameManager.instance.StoleLives();
         Debug.Log("Fall out of map. Reset position.");
         Debug.Log("Lives: " + lives);
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        transform.SetParent(null);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(other.CompareTag("Bonus"))
         {
-            score++;
-            Debug.Log("Score: " + score);
             other.gameObject.SetActive(false);
+            GameManager.instance.AddPoints(1);
         }
         if (other.CompareTag("Enemy") && this.transform.position.y > other.gameObject.transform.position.y)
         {
-            score++;
+            GameManager.instance.AddPoints(1);
+            GameManager.instance.AddDeads(1);
             Debug.Log("Killed an enemy");
-            Debug.Log("Score: " + score);
         }
         if (other.CompareTag("Enemy") && this.transform.position.y <= other.gameObject.transform.position.y)
         {
-            lives--;
+            GameManager.instance.StoleLives();
             if (lives > 0)
             {
                 Debug.Log("Lives: " + lives);
@@ -113,19 +119,23 @@ public class FoxController : MonoBehaviour
         }
         if (other.CompareTag("Key"))
         {
-            keysFound++;
-            Debug.Log("Keys found: " + keysFound);
+            GameManager.instance.AddKeys();
             other.gameObject.SetActive(false);
         }
         if (other.CompareTag("ExtraLive"))
         {
-            lives++;
+
+            GameManager.instance.AddLives();
             Debug.Log("Lives: " + lives);
             other.gameObject.SetActive(false);
         }
         if (other.CompareTag("FallLevel"))
         {
             Death();
+        }
+        if (other.CompareTag("MovingPlatform"))
+        {
+            transform.SetParent(other.transform);
         }
     }
 }
