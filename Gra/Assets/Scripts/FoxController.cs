@@ -12,6 +12,7 @@ public class FoxController : MonoBehaviour
     public LayerMask groundLayer;
     float rayLength = 0.8f;
     bool isFacingRight = true;
+    [SerializeField] public GameObject block;
 
     private Rigidbody2D rigidbody;
     private Animator animator;
@@ -22,6 +23,8 @@ public class FoxController : MonoBehaviour
     [SerializeField] public AudioClip dead;
     [SerializeField] public AudioClip win;
     [SerializeField] public AudioClip keySound;
+    [SerializeField] public AudioClip jump;
+    [SerializeField] public AudioClip open;
     AudioSource source;
 
     int lives = 3;
@@ -73,8 +76,11 @@ public class FoxController : MonoBehaviour
 
     void Jump()
     {
-        if(isGrounded())
+        if (isGrounded())
+        {
+            source.PlayOneShot(jump, AudioListener.volume);
             rigidbody.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        }
     }
 
     private void Flip()
@@ -157,6 +163,20 @@ public class FoxController : MonoBehaviour
                 GameManager.instance.AddPoints(100* GameManager.instance.getLives());
                 GameManager.instance.LevelCompleted();
             }
+        }
+        if (other.CompareTag("lever"))
+        {
+            if (GameManager.instance.getKeys() == 3)
+            {
+                source.PlayOneShot(open, AudioListener.volume);
+                block.SetActive(false);
+            }
+        }
+        if (other.CompareTag("DeadZone"))
+        {
+                source.PlayOneShot(dead, AudioListener.volume);
+                Debug.Log("Lives: " + lives);
+                this.transform.position = startPosition;
         }
     }
 }
