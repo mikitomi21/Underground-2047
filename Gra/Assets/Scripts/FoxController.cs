@@ -58,7 +58,7 @@ public class FoxController : MonoBehaviour
                 transform.Translate(moveSpeed, 0, 0, Space.World);
             }
 
-            if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+            if ( Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
             {
                 Jump();
             }
@@ -149,6 +149,7 @@ public class FoxController : MonoBehaviour
         }
         if (other.CompareTag("FallLevel"))
         {
+            GameManager.instance.AddDeads(1);
             Death();
         }
         if (other.CompareTag("MovingPlatform"))
