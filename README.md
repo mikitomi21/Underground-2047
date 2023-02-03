@@ -1,4 +1,2 @@
 # Underground-2047
-A repository for a new game created in Unity
-Tekst
-Tekst2
+Basic 2D game created in Unity.
